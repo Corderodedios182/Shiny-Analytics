@@ -1,5 +1,3 @@
-setwd("3_GitHub/Shiny-Analytics/")
-
 library(tidyverse)
 library(ggplot2)
 library(lubridate)
@@ -18,20 +16,14 @@ get_n <- function(x, n_init = 1, n_end = 4) {
 
 procces_info <- function(data){
   #Procesa Insumos para algoritmo  
-  data <- read_csv("Datos/Dataset Eventos 2020 - Sheet1.csv")
+  data <- read_csv(data)
   
   colnames(data) <- colnames(data) %>%
     str_replace_all("ga.","")
   
   data <- data %>%
-    mutate(año = get_n(data$date,1,4),
+    mutate(year = get_n(data$date,1,4),
            mes = get_n(data$date,5,6),
            dia = get_n(data$date,7,8),
-           fecha = ymd(as.Date(paste0(año, "/",mes,"/", dia))))
+           fecha = ymd(as.Date(paste0(year, "/",mes,"/", dia))))
 }
-
-#- Información
-
-data <- "Datos/Dataset Eventos 2020 - Sheet1.csv"
-
-data <- procces_info(data)
