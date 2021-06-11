@@ -72,3 +72,61 @@ traffic_lights  <- function(data){
 }
 
 data_new <- traffic_lights(data)
+
+#- Analisis Exploratorio
+
+group_by(data_new, etiquetado) %>% count(conteo = n())
+group_by(data_new, eventCategory, etiquetado) %>% count(conteo = n())
+
+data_event <- filter(data_new, eventCategory == unique(data_new$eventCategory)[3])
+
+#Graficas de Control
+print_percentage <- scales::label_comma(accuracy = 0.1, scale = 100, suffix = '%')
+
+fig <- plot_ly(
+  data = data_event,
+  x = ~max_fecha,
+  hoverinfo = 'text'
+) %>%
+  add_lines(y = ~diferencia,
+            name = 'Eventos diferencia porcentual',
+            marker = list(color = "#0052ce"),
+            line = list(color = '#0052ce', width = 2),
+            fill = '#0052ce',
+            text = ~max_fecha
+  ) %>%
+  add_annotations(
+    x = data_event$max_fecha,
+    y = data_event$diferencia,
+    text = ~print_percentage(diferencia),
+    yanchor = 'bottom',
+    showarrow = FALSE
+  ) %>%
+  layout(
+    title = paste0('Monitoreo de Eventos cada 3 días:  ', unique(data_event$eventCategory)),
+    xaxis = list(title = "Revisar días que sobre pasan la Línea Crítica", tickangle = 0),
+    yaxis = list(
+      title = 'Diferencia Respecto a los días anteriores',
+      range = c(min(data_event$diferencia)/.35, max(data_event$diferencia)/.95),
+      tickformat = '%,2.f'
+    ),
+    legend = list(x = .40, y = -.15, orientation = 'h'),
+    margin = list(r = -2),
+    hovermode = 'compare',
+    shapes = lines
+  ) %>%
+  add_lines(y=-.90,
+            name = 'Línea Crítica',
+            line = list(color = '#ce0015', width = 1),
+            text = "-90%"
+  )%>%
+  add_lines(y=-.35,
+            name = 'Alerta I',
+            line = list(color = '#cfc625', width = 1),
+            text = "-35%"
+  )%>%
+  add_lines(y=-.50,
+            name = 'Alerta II',
+            line = list(color = '#ce6e00', width = 1),
+            text = "-50%")
+fig
