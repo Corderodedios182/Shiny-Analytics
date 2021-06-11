@@ -12,6 +12,7 @@ library(leaflet)
 library(wordcloud)
 library(wordcloud2)
 library(tm)
+library(DT)
 
 my_css <- "
 #download_data {
@@ -69,9 +70,19 @@ ui <- fluidPage(
             ),
         
         mainPanel(
-            em(h2("Datos y Graficas interactivas")),
             tabsetPanel(
-              tabPanel("Monitoreo y Alertas"),
-              tabPanel("Datos Originales")))
+              tabPanel("Monitoreo y Alertas",
+                       br(),
+                       plotlyOutput("graph_control"),
+                       em(h2("Resumen")),
+                       dataTableOutput('summary'),
+                       em(h2("Datos Etiquetados")),
+                       dataTableOutput('table')),
+              tabPanel("Datos Originales",
+                       dataTableOutput('table_origin')
+                       )
+              ) 
+            )
         )
-)
+    )
+

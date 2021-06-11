@@ -12,15 +12,47 @@ library(shiny)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
 
-    output$distPlot <- renderPlot({
-
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-
+    output$graph_control <- renderPlotly({fig})
+    
+    output$table_origin <- renderDataTable(
+        datatable(
+            {
+                data
+            }, 
+            rownames = FALSE, 
+            options = list(
+                scrollX = TRUE,
+                scrollY = TRUE,
+                pageLength = 100
+            )
+        )
+    )
+    
+    output$summary <- renderDataTable(
+        datatable(
+            {
+                summary_event
+            }, 
+            rownames = FALSE, 
+            options = list(
+                scrollX = TRUE,
+                scrollY = TRUE,
+                pageLength = 100
+            )
+        )
+    )
+    
+    output$table <- renderDataTable(
+        datatable(
+            {
+                data_event
+            }, 
+            rownames = FALSE, 
+            options = list(
+                scrollX = TRUE,
+                scrollY = TRUE,
+                pageLength = 100
+            )
+        )
+    )
     })
-
-})

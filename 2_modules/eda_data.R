@@ -28,8 +28,8 @@ traffic_lights  <- function(data){
         summarise(
           max_fecha = max(fecha),
           suma = sum(totalEvents),
-          promedio = mean(totalEvents),
-          sd = sd(totalEvents),
+          promedio = round(mean(totalEvents),2),
+          sd = round(sd(totalEvents),2),
           mediana = median(totalEvents),
           minimo = min(totalEvents),
           max = max(totalEvents))
@@ -72,15 +72,16 @@ traffic_lights  <- function(data){
 data_new <- traffic_lights(data)
 
 #- Analisis Exploratorio
+print_percentage <- scales::label_comma(accuracy = 0.1, scale = 100, suffix = '%')
 
 group_by(data_new, etiquetado) %>% count(conteo = n())
 group_by(data_new, eventCategory, etiquetado) %>% count(conteo = n())
 
 data_event <- filter(data_new, eventCategory == unique(data_new$eventCategory)[3])
 
-#Graficas de Control
-print_percentage <- scales::label_comma(accuracy = 0.1, scale = 100, suffix = '%')
+summary_event <- group_by(data_event, etiquetado) %>% summarise(conteo = n()) %>% mutate(porcentaje = print_percentage(conteo/sum(conteo)))
 
+#Graficas de Control
 fig <- plot_ly(
   data = data_event,
   x = ~max_fecha,
@@ -91,14 +92,7 @@ fig <- plot_ly(
             marker = list(color = "#0052ce"),
             line = list(color = '#0052ce', width = 2),
             fill = '#0052ce',
-            text = ~max_fecha
-  ) %>%
-  add_annotations(
-    x = data_event$max_fecha,
-    y = data_event$diferencia,
-    text = ~print_percentage(diferencia),
-    yanchor = 'bottom',
-    showarrow = FALSE
+            hovertext = ~max_fecha
   ) %>%
   layout(
     title = paste0('Monitoreo de Eventos cada 3 días:  ', unique(data_event$eventCategory)),
@@ -108,8 +102,8 @@ fig <- plot_ly(
       range = c(min(data_event$diferencia)/.35, max(data_event$diferencia)/.95),
       tickformat = '%,2.f'
     ),
-    legend = list(x = .40, y = -.15, orientation = 'h'),
-    margin = list(r = -2),
+    legend = list(x = .40, y = -.25, orientation = 'h'),
+    margin = list(r = -3),
     hovermode = 'compare',
     shapes = lines
   ) %>%
